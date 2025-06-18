@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vechain Transaction Tester</title>
+    <style>
+        :root {
+            --primary: #2d7ff9;
+            --dark: #1e293b;
+            --light: #f8fafc;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: var(--light);
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(148, 163, 184, 0.3);
+        }
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            margin: 10px 5px;
+        }
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0 20px;
+            border-radius: 8px;
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid #334155;
+            color: white;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            background: rgba(30, 41, 59, 0.9);
+        }
+        .success { color: #4ade80; }
+        .error { color: #f87171; }
+        .loading { color: #60a5fa; }
+        .wallet-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Vechain Transaction Tester</h1>
+        <p>Test transactions using Ledger + Sync2/VeWorld</p>
+        
+        <div id="walletSection">
+            <button id="connectWallet">Connect Wallet</button>
+            <div id="walletInfo" class="wallet-info" style="display:none;">
+                <span>Connected to: </span>
+                <strong id="walletAddress"></strong>
+                <span>Network: <span id="networkInfo">Testnet</span></span>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Transaction Details</h2>
+            <label>Recipient Address:</label>
+            <input type="text" id="recipient" placeholder="0x...">
+            
+            <label>Amount (VET):</label>
+            <input type="number" id="amount" step="0.001" min="0" value="0.1">
+            
+            <label>Transaction Type:</label>
+            <select id="txType">
+                <option value="vet">VET Transfer</option>
+                <option value="contract">Contract Interaction</option>
+            </select>
+            
+            <div id="contractSection" style="display:none;">
+                <label>Contract Address:</label>
+                <input type="text" id="contractAddress" placeholder="0x...">
+                
+                <label>ABI/Function Data:</label>
+                <input type="text" id="functionData" placeholder="Function selector + params">
+            </div>
+            
+            <button id="sendTransaction">Send Test Transaction</button>
+        </div>
+        
+        <div class="status" id="status" style="display:none;"></div>
+    </div>
+
+    <!-- Load Vechain SDK from CDN -->
+    <script src="https://unpkg.com/@vechain/sdk-core"></script>
+    <script src="app.js"></script>
+</body>
+</html>
