@@ -125,6 +125,14 @@
         .wallet-dropdown-content a:hover {
             background: #334155;
         }
+        /* New: spacing for SHA and actions */
+        .sha-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            justify-content: center;
+            margin-top: 1em;
+        }
     </style>
     <!-- Load Vechain SDK from CDN -->
     <script src="https://unpkg.com/@vechain/sdk-core"></script>
@@ -197,6 +205,10 @@
                 <button type="submit">Generate SHA-256 Hash</button>
             </form>
             <div class="hash-output" id="hashOutput"></div>
+            <div class="sha-actions">
+                <button id="registerOnChainBtn" style="display:none;">Register on VeChain</button>
+                <a id="lookupLink" href="#" target="_blank" style="display:none;">Lookup on VeChainStats</a>
+            </div>
         </div>
     </div>
 
@@ -271,7 +283,9 @@
             return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
-        // Form submit handler for hash generation
+        // --- SHA-256 Registration Logic ---
+        let currentHash = '';
+
         document.getElementById('register-form').onsubmit = async function(e) {
             e.preventDefault();
             const businessData = {
@@ -279,9 +293,120 @@
                 id: document.getElementById('business-id').value
             };
             const shaHash = await generateSHA256(businessData);
+            currentHash = shaHash;
             document.getElementById('hashOutput').innerText = "SHA256: " + shaHash;
             document.getElementById('hashOutput').style.display = 'block';
+            // Show register button and lookup link
+            document.getElementById('registerOnChainBtn').style.display = 'inline-block';
+            document.getElementById('lookupLink').href = "https://verify.vechainstats.com/#/lookup/" + shaHash;
+            document.getElementById('lookupLink').style.display = 'inline-block';
             document.getElementById('status').style.display = 'none';
+        };
+
+        // VeChain Identity Registry contract address (mainnet; replace with testnet if needed)
+        const REGISTRY_CONTRACT = "0x0000000000000000000000000000456E65726779";
+
+        document.getElementById('registerOnChainBtn').onclick = async function() {
+            if (!currentHash) return;
+            const statusDiv = document.getElementById('status');
+            statusDiv.style.display = 'block';
+            statusDiv.className = 'status loading';
+            statusDiv.innerText = 'Preparing registration transaction...';
+
+            // Prefer VeWorld, fallback to Sync2
+            const provider = window.vechain || window.sync2;
+            if (!provider) {
+                statusDiv.innerText = "No VeWorld or Sync2 wallet detected.";
+                statusDiv.className = 'status error';
+                return;
+            }
+            try {
+                // Prepare ABI encoding for register(bytes32)
+                if (!window.Connex || !Connex.utils || !Connex.utils.abiEncodeFunctionCall) {
+                    statusDiv.innerText = "Connex ABI encoding not available.";
+                    statusDiv.className = 'status error';
+                    return;
+                }
+                const idHex = '0x' + currentHash;
+                const data = Connex.utils.abiEncodeFunctionCall({
+                    name: "register",
+                    type: "function",
+                    inputs: [{ name: "id", type: "bytes32" }]
+                }, [idHex]);
+                const tx = {
+                    to: REGISTRY_CONTRACT,
+                    value: '0',
+                    data: data
+                };
+                await provider.request({
+                    method: 'eth_sendTransaction',
+                    params: [tx]
+                });
+                statusDiv.innerText = "Transaction sent! Wait for confirmation, then use the lookup link above.";
+                statusDiv.className = 'status success';
+            } catch (err) {
+                statusDiv.innerText = "Error: " + (err.message || err);
+                statusDiv.className = 'status error';
+            }
+        };
+
+        // (Optional) Transaction send logic for your transaction tester (unchanged)
+        document.getElementById('sendTransaction').onclick = async function() {
+            const statusDiv = document.getElementById('status');
+            const recipient = document.getElementById('recipient').value.trim();
+            const amount = document.getElementById('amount').value.trim();
+            const txType = document.getElementById('txType').value;
+            let provider = window.vechain || window.sync2;
+
+            if (!provider) {
+                statusDiv.innerText = "Please connect a wallet first.";
+                statusDiv.className = 'status error';
+                statusDiv.style.display = 'block';
+                return;
+            }
+            if (!recipient || !amount) {
+                statusDiv.innerText = "Please enter recipient and amount.";
+                statusDiv.className = 'status error';
+                statusDiv.style.display = 'block';
+                return;
+            }
+
+            statusDiv.innerText = "Preparing transaction...";
+            statusDiv.className = 'status loading';
+            statusDiv.style.display = 'block';
+
+            try {
+                let tx = {
+                    to: recipient,
+                    value: (BigInt(parseFloat(amount) * 1e18)).toString(),
+                };
+
+                if (txType === 'contract') {
+                    const contractAddr = document.getElementById('contractAddress').value.trim();
+                    const funcData = document.getElementById('functionData').value.trim();
+                    if (!contractAddr || !funcData) {
+                        statusDiv.innerText = "Enter contract address and function data.";
+                        statusDiv.className = 'status error';
+                        return;
+                    }
+                    tx = {
+                        to: contractAddr,
+                        value: '0',
+                        data: funcData
+                    };
+                }
+
+                await provider.request({
+                    method: 'eth_sendTransaction',
+                    params: [tx]
+                });
+
+                statusDiv.innerText = "Transaction sent! Check your wallet for confirmation.";
+                statusDiv.className = 'status success';
+            } catch (err) {
+                statusDiv.innerText = "Error: " + (err.message || err);
+                statusDiv.className = 'status error';
+            }
         };
     </script>
 </body>
