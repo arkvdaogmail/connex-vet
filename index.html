@@ -1,184 +1,209 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>VeChain Transaction Tester</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    :root {
-      --primary: #2d7ff9;
-      --dark: #1293bc;
-      --light: #f1fafc;
-      --background: #f8f7ae;
-      --card: #50575b;
-      --card-shadow: rgba(0,0,0,0.18);
-    }
-    body {
-      font-family: 'Inter', sans-serif;
-      background: var(--background);
-      margin: 0;
-      min-height: 100vh;
-    }
-    h1 {
-      text-align: center;
-      color: #e1e1e1;
-      margin-top: 2rem;
-      font-size: 2.3rem;
-      font-weight: bold;
-      text-shadow: 1px 1px 2px #888;
-    }
-    .card {
-      background: var(--card);
-      max-width: 520px;
-      margin: 2.5rem auto 0 auto;
-      border-radius: 22px;
-      box-shadow: 0 6px 40px var(--card-shadow);
-      padding: 2rem 2.5rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    button {
-      background: var(--primary);
-      color: white;
-      border: none;
-      padding: 1rem 2rem;
-      border-radius: 8px;
-      font-size: 1rem;
-      cursor: pointer;
-      margin-bottom: 1.5rem;
-      transition: background .2s;
-    }
-    button:disabled {
-      background: #aaa;
-      cursor: not-allowed;
-    }
-    #walletInfo {
-      background: #e3f2fd;
-      color: #222;
-      border-radius: 8px;
-      padding: 0.7em 1em;
-      margin: 1em 0 1.5em 0;
-      width: 100%;
-      word-break: break-all;
-      display: none;
-      text-align: center;
-    }
-    #status {
-      color: #d32f2f;
-      margin-bottom: 1em;
-      font-weight: bold;
-      text-align: center;
-    }
-    .hash-output {
-      background: #fffbe7;
-      color: #444;
-      padding: 0.5em 1em;
-      margin-top: 1em;
-      border-radius: 7px;
-      font-size: 0.98em;
-      word-break: break-all;
-      text-align: center;
-      display: none;
-    }
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      margin-bottom: 1em;
-      width: 100%;
-    }
-    .form-group label {
-      margin-bottom: 0.2em;
-      color: #e1e1e1;
-      text-align: left;
-    }
-    .form-group input {
-      padding: 0.6em;
-      font-size: 1em;
-      border-radius: 6px;
-      border: 1px solid #dcdcdc;
-      outline: none;
-      width: 100%;
-      margin-bottom: 0.4em;
-    }
-    @media (max-width: 600px) {
-      .card {
-        padding: 1em 0.5em;
-      }
-      h1 {
-        font-size: 1.3rem;
-      }
-    }
-  </style>
-  <!-- Connex CDN for browser -->
-  <script src="https://unpkg.com/@vechain/connex@3"></script>
+    <meta charset="UTF-8">
+    <title>VeChain Transaction Tester</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        :root {
+            --primary: #2d7ff9;
+            --dark: #1e293b;
+            --light: #f8fafc;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: var(--light);
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(148, 163, 184, 0.3);
+        }
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            margin: 10px 5px;
+        }
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0 20px;
+            border-radius: 8px;
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid #334155;
+            color: white;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            background: rgba(30, 41, 59, 0.9);
+        }
+        .success { color: #4ade80; }
+        .error { color: #f87171; }
+        .loading { color: #60a5fa; }
+        .wallet-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .hash-output {
+            background: #fffbe7;
+            color: #444;
+            padding: 0.5em 1em;
+            margin-top: 1em;
+            border-radius: 7px;
+            font-size: 0.98em;
+            word-break: break-all;
+            text-align: center;
+            display: none;
+        }
+    </style>
+    <!-- Load Vechain SDK from CDN -->
+    <script src="https://unpkg.com/@vechain/sdk-core"></script>
+    <script src="https://unpkg.com/@vechain/connex@3"></script>
 </head>
 <body>
-  <h1>VeChain Transaction Tester</h1>
-  <div class="card">
-    <button id="connectWallet">Connect Wallet</button>
-    <div id="walletInfo">
-      <strong>Address:</strong> <span id="walletAddress"></span>
+    <div class="card">
+        <h1>VeChain Transaction Tester</h1>
+        <p>Test transactions using Ledger + Sync2/VeWorld</p>
+        
+        <div id="walletSection">
+            <button id="connectSync2">Connect with Sync2</button>
+            <button id="connectVeWorld">Connect with VeWorld</button>
+            <button id="connectLedger">Connect with Ledger</button>
+            <div id="walletInfo" class="wallet-info" style="display:none;">
+                <span>Connected to: </span>
+                <strong id="walletAddress"></strong>
+                <span>Network: <span id="networkInfo">Testnet</span></span>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Transaction Details</h2>
+            <label>Recipient Address:</label>
+            <input type="text" id="recipient" placeholder="0x...">
+            
+            <label>Amount (VET):</label>
+            <input type="number" id="amount" step="0.001" min="0" value="0.1">
+            
+            <label>Transaction Type:</label>
+            <select id="txType">
+                <option value="vet">VET Transfer</option>
+                <option value="contract">Contract Interaction</option>
+            </select>
+            
+            <div id="contractSection" style="display:none;">
+                <label>Contract Address:</label>
+                <input type="text" id="contractAddress" placeholder="0x...">
+                
+                <label>ABI/Function Data:</label>
+                <input type="text" id="functionData" placeholder="Function selector + params">
+            </div>
+            
+            <button id="sendTransaction">Send Test Transaction</button>
+        </div>
+        
+        <div class="status" id="status" style="display:none;"></div>
+
+        <div class="card">
+            <h2>SHA-256 Hash Generator</h2>
+            <form id="register-form" autocomplete="off">
+                <label for="business-name">Business Name:</label>
+                <input id="business-name" type="text" required placeholder="Business Name">
+                <label for="business-id">Business ID:</label>
+                <input id="business-id" type="text" required placeholder="Business ID">
+                <button type="submit">Generate SHA-256 Hash</button>
+            </form>
+            <div class="hash-output" id="hashOutput"></div>
+        </div>
     </div>
-    <div id="status"></div>
-    <form id="register-form" autocomplete="off">
-      <div class="form-group">
-        <label for="business-name">Business Name:</label>
-        <input id="business-name" type="text" required placeholder="Business Name">
-      </div>
-      <div class="form-group">
-        <label for="business-id">Business ID:</label>
-        <input id="business-id" type="text" required placeholder="Business ID">
-      </div>
-      <button type="submit">Generate SHA-256 Hash</button>
-    </form>
-    <div class="hash-output" id="hashOutput"></div>
-  </div>
-  <script>
-    // Wallet Connect (Sync2/VeWorld)
-    document.getElementById('connectWallet').onclick = async function() {
-      let provider = window.vechain || window.sync2;
-      if (!provider) {
-        document.getElementById('status').innerText = "No VeChain wallet found! Please install Sync2 or VeWorld.";
-        return;
-      }
-      try {
-        const accounts = await provider.request({ method: 'eth_requestAccounts' });
-        const address = accounts[0];
-        document.getElementById('walletAddress').innerText = address;
-        document.getElementById('walletInfo').style.display = 'block';
-        this.disabled = true;
-        this.innerText = "Wallet Connected";
-        document.getElementById('status').innerText = "";
-        window.connectedAddress = address;
-      } catch (err) {
-        document.getElementById('status').innerText = "User denied wallet connection.";
-      }
-    };
 
-    // SHA-256 generator
-    async function generateSHA256(data) {
-      const encoder = new TextEncoder();
-      const encoded = encoder.encode(JSON.stringify(data));
-      const hashBuffer = await crypto.subtle.digest('SHA-256', encoded);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    }
+    <script>
+        // Wallet Connect Handlers
+        document.getElementById('connectSync2').onclick = async function() {
+            let provider = window.sync2;
+            await connectWallet(provider, "Sync2");
+        };
+        document.getElementById('connectVeWorld').onclick = async function() {
+            let provider = window.vechain;
+            await connectWallet(provider, "VeWorld");
+        };
+        document.getElementById('connectLedger').onclick = async function() {
+            alert('Ledger connection requires a specific implementation and is not supported directly in browser.'); // Placeholder
+        };
 
-    // Form submit handler for hash generation
-    document.getElementById('register-form').onsubmit = async function(e) {
-      e.preventDefault();
-      const businessData = {
-        name: document.getElementById('business-name').value,
-        id: document.getElementById('business-id').value
-      };
-      const shaHash = await generateSHA256(businessData);
-      document.getElementById('hashOutput').innerText = "SHA256: " + shaHash;
-      document.getElementById('hashOutput').style.display = 'block';
-      document.getElementById('status').innerText = "";
-    };
+        async function connectWallet(provider, name) {
+            const statusDiv = document.getElementById('status');
+            if (!provider) {
+                statusDiv.innerText = `No ${name} wallet found! Please install it.`;
+                statusDiv.className = 'status error';
+                statusDiv.style.display = 'block';
+                return;
+            }
+            try {
+                const accounts = await provider.request({ method: 'eth_requestAccounts' });
+                const address = accounts[0];
+                document.getElementById('walletAddress').innerText = address;
+                document.getElementById('walletInfo').style.display = 'flex';
+                document.getElementById('networkInfo').innerText = 'Testnet'; // You can detect network if needed
+                statusDiv.innerText = `Connected with ${name}`;
+                statusDiv.className = 'status success';
+                statusDiv.style.display = 'block';
+            } catch (err) {
+                statusDiv.innerText = "User denied wallet connection.";
+                statusDiv.className = 'status error';
+                statusDiv.style.display = 'block';
+            }
+        }
 
-    // You can extend here for blockchain interaction (using Connex), as needed
-  </script>
+        // Transaction Type Selector
+        document.getElementById('txType').onchange = function() {
+            document.getElementById('contractSection').style.display =
+                this.value === 'contract' ? 'block' : 'none';
+        };
+
+        // SHA-256 generator
+        async function generateSHA256(data) {
+            const encoder = new TextEncoder();
+            const encoded = encoder.encode(JSON.stringify(data));
+            const hashBuffer = await crypto.subtle.digest('SHA-256', encoded);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        // Form submit handler for hash generation
+        document.getElementById('register-form').onsubmit = async function(e) {
+            e.preventDefault();
+            const businessData = {
+                name: document.getElementById('business-name').value,
+                id: document.getElementById('business-id').value
+            };
+            const shaHash = await generateSHA256(businessData);
+            document.getElementById('hashOutput').innerText = "SHA256: " + shaHash;
+            document.getElementById('hashOutput').style.display = 'block';
+            document.getElementById('status').style.display = 'none';
+        };
+    </script>
 </body>
+</html>
 </html>
