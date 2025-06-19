@@ -87,16 +87,23 @@
         <h1>VeChain Transaction Tester</h1>
         <p>Test transactions using Ledger + Sync2/VeWorld</p>
         
-        <div id="walletSection">
-            <button id="connectSync2">Connect with Sync2</button>
-            <button id="connectVeWorld">Connect with VeWorld</button>
-            <button id="connectLedger">Connect with Ledger</button>
-            <div id="walletInfo" class="wallet-info" style="display:none;">
-                <span>Connected to: </span>
-                <strong id="walletAddress"></strong>
-                <span>Network: <span id="networkInfo">Testnet</span></span>
-            </div>
-        </div>
+        <div class="wallet-dropdown">
+  <button class="wallet-icon-btn" id="walletDropdownBtn" title="Wallets">
+    <!-- Simple SVG wallet icon -->
+    <svg width="24" height="24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="7" width="20" height="13" rx="3" />
+      <path d="M16 3v4" />
+      <path d="M8 3v4" />
+      <path d="M2 11h20" />
+    </svg>
+  </button>
+  <div class="wallet-dropdown-content" id="walletDropdownMenu">
+    <a href="#" id="walletConnectOption">Wallet Connect</a>
+    <a href="#" id="vworldOption">VeWorld</a>
+    <a href="#" id="sync2Option">Sync2</a>
+    <a href="#" id="ledgerOption">Ledger</a>
+  </div>
+</div>
         
         <div class="card">
             <h2>Transaction Details</h2>
