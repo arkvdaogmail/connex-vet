@@ -77,7 +77,6 @@
             text-align: center;
             display: none;
         }
-        /* Wallet Dropdown Styles */
         .wallet-dropdown {
             position: relative;
             display: inline-block;
@@ -125,7 +124,6 @@
         .wallet-dropdown-content a:hover {
             background: #334155;
         }
-        /* New: spacing for SHA and actions */
         .sha-actions {
             display: flex;
             gap: 12px;
@@ -243,24 +241,26 @@
 
         let selectedWallet = null;
 
-        // Connect wallet logic (for display/info only)
+        // FIXED: Connect wallet logic
         async function connectWallet(name) {
             const statusDiv = document.getElementById('status');
-            let provider = null;
-            if (name === "VeWorld" && window.vechain) provider = window.vechain;
-            if (name === "Sync2" && window.sync2) provider = window.sync2;
-
-            if (!provider) {
-                statusDiv.innerText = `No ${name} wallet found! Please install it.`;
-                statusDiv.className = 'status error';
-                statusDiv.style.display = 'block';
-                return;
-            }
+            let address = null;
             try {
-                // For VeWorld/Sync2, show address info via Connex
-                const connex = new Connex.Vendor('test');
-                const account = await connex.thor.account(window.vechain ? window.vechain.selectedAddress : window.sync2.selectedAddress);
-                document.getElementById('walletAddress').innerText = account.address;
+                if (name === "VeWorld" && window.vechain && window.vechain.request) {
+                    const accounts = await window.vechain.request({ method: 'eth_requestAccounts' });
+                    address = accounts[0];
+                }
+                if (name === "Sync2" && window.sync2 && window.sync2.request) {
+                    const accounts = await window.sync2.request({ method: 'eth_requestAccounts' });
+                    address = accounts[0];
+                }
+                if (!address) {
+                    statusDiv.innerText = "Could not fetch wallet address.";
+                    statusDiv.className = 'status error';
+                    statusDiv.style.display = 'block';
+                    return;
+                }
+                document.getElementById('walletAddress').innerText = address;
                 document.getElementById('walletInfo').style.display = 'flex';
                 document.getElementById('networkInfo').innerText = 'Testnet';
                 statusDiv.innerText = `Connected with ${name}`;
