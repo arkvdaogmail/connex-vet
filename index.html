@@ -200,9 +200,6 @@
         </div>
         
         <div class="status" id="status" style="display:none;"></div>
-        <div id="explorerOutput" class="status">
-            Explorer and event output will appear here after a transaction or registration.
-        </div>
 
         <div class="card">
             <h2>SHA-256 Hash Generator</h2>
@@ -217,6 +214,10 @@
             <div class="sha-actions">
                 <button id="registerOnChainBtn" style="display:none;">Register on VeChain & Show Events</button>
                 <a id="lookupLink" href="#" target="_blank" style="display:none;">Lookup on VeChainStats</a>
+            </div>
+            <!-- MOVED EXPLORER OUTPUT HERE -->
+            <div id="explorerOutput" class="status">
+                Explorer and event output will appear here after a transaction or registration.
             </div>
         </div>
     </div>
@@ -318,7 +319,7 @@
             document.getElementById('lookupLink').href = "https://verify.vechainstats.com/#/lookup/" + shaHash;
             document.getElementById('lookupLink').style.display = 'inline-block';
             document.getElementById('status').style.display = 'none';
-            // Don't clear explorer output, leave default message
+            // Do not clear explorer output, leave default message
         };
 
         // VeChain Identity Registry contract address (testnet)
