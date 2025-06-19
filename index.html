@@ -85,14 +85,20 @@
         .wallet-icon-btn {
             background: var(--primary);
             border: none;
-            border-radius: 50%;
-            padding: 12px;
+            border-radius: 24px;
+            padding: 12px 20px;
             cursor: pointer;
-            width: 48px;
-            height: 48px;
+            min-width: 48px;
+            min-height: 48px;
             display: flex;
             align-items: center;
             justify-content: center;
+            gap: 10px;
+            font-size: 1rem;
+        }
+        .wallet-icon-btn svg {
+            display: inline-block;
+            vertical-align: middle;
         }
         .wallet-icon-btn:hover {
             background: #175ecb;
@@ -132,12 +138,13 @@
         <!-- Wallet Icon Dropdown -->
         <div class="wallet-dropdown">
             <button class="wallet-icon-btn" id="walletDropdownBtn" title="Wallets">
-                <svg width="24" height="24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="24" height="24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;">
                     <rect x="2" y="7" width="20" height="13" rx="3" />
                     <path d="M16 3v4" />
                     <path d="M8 3v4" />
                     <path d="M2 11h20" />
                 </svg>
+                <span style="vertical-align: middle;">Wallets Connect</span>
             </button>
             <div class="wallet-dropdown-content" id="walletDropdownMenu">
                 <a href="#" id="walletConnectOption">Wallet Connect</a>
