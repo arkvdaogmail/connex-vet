@@ -132,7 +132,6 @@
         <!-- Wallet Icon Dropdown -->
         <div class="wallet-dropdown">
             <button class="wallet-icon-btn" id="walletDropdownBtn" title="Wallets">
-                <!-- SVG wallet icon -->
                 <svg width="24" height="24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="2" y="7" width="20" height="13" rx="3" />
                     <path d="M16 3v4" />
@@ -218,5 +217,65 @@
         document.getElementById('sync2Option').onclick = async function(e) {
             e.preventDefault();
             let provider = window.sync2;
-            await connectWallet(provider*
-
+            await connectWallet(provider, "Sync2");
+        };
+        document.getElementById('ledgerOption').onclick = function(e) {
+            e.preventDefault();
+            alert('Ledger connection requires a specific implementation and is not supported directly in browser.'); // Placeholder
+        };
+
+        // Connect wallet logic
+        async function connectWallet(provider, name) {
+            const statusDiv = document.getElementById('status');
+            if (!provider) {
+                statusDiv.innerText = `No ${name} wallet found! Please install it.`;
+                statusDiv.className = 'status error';
+                statusDiv.style.display = 'block';
+                return;
+            }
+            try {
+                const accounts = await provider.request({ method: 'eth_requestAccounts' });
+                const address = accounts[0];
+                document.getElementById('walletAddress').innerText = address;
+                document.getElementById('walletInfo').style.display = 'flex';
+                document.getElementById('networkInfo').innerText = 'Testnet'; // You can detect network if needed
+                statusDiv.innerText = `Connected with ${name}`;
+                statusDiv.className = 'status success';
+                statusDiv.style.display = 'block';
+            } catch (err) {
+                statusDiv.innerText = "User denied wallet connection.";
+                statusDiv.className = 'status error';
+                statusDiv.style.display = 'block';
+            }
+        }
+
+        // Transaction Type Selector
+        document.getElementById('txType').onchange = function() {
+            document.getElementById('contractSection').style.display =
+                this.value === 'contract' ? 'block' : 'none';
+        };
+
+        // SHA-256 generator
+        async function generateSHA256(data) {
+            const encoder = new TextEncoder();
+            const encoded = encoder.encode(JSON.stringify(data));
+            const hashBuffer = await crypto.subtle.digest('SHA-256', encoded);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        // Form submit handler for hash generation
+        document.getElementById('register-form').onsubmit = async function(e) {
+            e.preventDefault();
+            const businessData = {
+                name: document.getElementById('business-name').value,
+                id: document.getElementById('business-id').value
+            };
+            const shaHash = await generateSHA256(businessData);
+            document.getElementById('hashOutput').innerText = "SHA256: " + shaHash;
+            document.getElementById('hashOutput').style.display = 'block';
+            document.getElementById('status').style.display = 'none';
+        };
+    </script>
+</body>
+</html>
