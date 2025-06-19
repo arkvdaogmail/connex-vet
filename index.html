@@ -137,6 +137,7 @@
             background: #1e293b;
             border-left: 4px solid #2d7ff9;
             color: #b5e4fa;
+            min-height: 60px;
         }
     </style>
     <!-- Load Vechain SDK from CDN -->
@@ -199,7 +200,9 @@
         </div>
         
         <div class="status" id="status" style="display:none;"></div>
-        <div id="explorerOutput" class="status" style="display:none;"></div>
+        <div id="explorerOutput" class="status">
+            Explorer and event output will appear here after a transaction or registration.
+        </div>
 
         <div class="card">
             <h2>SHA-256 Hash Generator</h2>
@@ -315,10 +318,10 @@
             document.getElementById('lookupLink').href = "https://verify.vechainstats.com/#/lookup/" + shaHash;
             document.getElementById('lookupLink').style.display = 'inline-block';
             document.getElementById('status').style.display = 'none';
-            document.getElementById('explorerOutput').style.display = 'none';
+            // Don't clear explorer output, leave default message
         };
 
-        // VeChain Identity Registry contract address (mainnet; replace with testnet if needed)
+        // VeChain Identity Registry contract address (testnet)
         const REGISTRY_CONTRACT = "0x0000000000000000000000000000456E65726779";
 
         document.getElementById('registerOnChainBtn').onclick = async function() {
@@ -328,10 +331,8 @@
             statusDiv.style.display = 'block';
             statusDiv.className = 'status loading';
             statusDiv.innerText = 'Preparing registration transaction...';
-            explorerDiv.style.display = 'none';
-            explorerDiv.innerText = '';
 
-            const connex = new Connex.Vendor('test'); // use 'main' for mainnet
+            const connex = new Connex.Vendor('test');
             try {
                 // ABI encode for register(bytes32)
                 const idHex = '0x' + currentHash;
@@ -350,15 +351,14 @@
                 statusDiv.className = 'status success';
 
                 let txid = txRes.txid;
-                // Show direct link to Events tab for the transaction
                 explorerDiv.innerHTML = `
                     <b>Registration complete!</b><br>
                     <b>Business ID:</b> <span style="color:#4ade80">${document.getElementById('business-id').value}</span><br>
-                    <b>Tx Hash:</b> <a href="https://explore-testnet.vechain.org/transactions/${txid}#events" target="_blank">${txid}</a><br>
-                    <b>Explorer Events:</b> <a href="https://explore-testnet.vechain.org/transactions/${txid}#events" target="_blank">View Events</a>
+                    <b>SHA256:</b> <span style="color:#60a5fa">${currentHash}</span><br>
+                    <b>Tx Hash:</b> <a href="https://explore-testnet.vechain.org/transactions/${txid}" target="_blank">${txid}</a><br>
+                    <b>Explorer Events:</b> <a href="https://explore-testnet.vechain.org/transactions/${txid}#events" target="_blank">View Events Tab</a>
                     <br><span style="font-size:13px;color:#aaa">If you don't see your event yet, please wait for block confirmation and refresh the explorer page.</span>
                 `;
-                explorerDiv.style.display = 'block';
 
                 // Optionally, fetch and display event output directly in your UI
                 fetch(`https://explore-testnet.vechain.org/api/transactions/${txid}`)
@@ -383,9 +383,6 @@
             const amount = document.getElementById('amount').value.trim();
             const txType = document.getElementById('txType').value;
             const connex = new Connex.Vendor('test');
-
-            explorerDiv.style.display = 'none';
-            explorerDiv.innerHTML = '';
 
             if (!recipient || !amount) {
                 statusDiv.innerText = "Please enter recipient and amount.";
@@ -426,11 +423,10 @@
 
                 let txid = txRes.txid;
                 explorerDiv.innerHTML = `
-                    <b>Tx Hash:</b> <a href="https://explore-testnet.vechain.org/transactions/${txid}#events" target="_blank">${txid}</a><br>
-                    <b>Explorer Events:</b> <a href="https://explore-testnet.vechain.org/transactions/${txid}#events" target="_blank">View Events</a>
+                    <b>Tx Hash:</b> <a href="https://explore-testnet.vechain.org/transactions/${txid}" target="_blank">${txid}</a><br>
+                    <b>Explorer Events:</b> <a href="https://explore-testnet.vechain.org/transactions/${txid}#events" target="_blank">View Events Tab</a>
                     <br><span style="font-size:13px;color:#aaa">If you don't see your event yet, please wait for block confirmation and refresh the explorer page.</span>
                 `;
-                explorerDiv.style.display = 'block';
 
                 fetch(`https://explore-testnet.vechain.org/api/transactions/${txid}`)
                   .then(r => r.json())
