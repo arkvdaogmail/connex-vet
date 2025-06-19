@@ -226,26 +226,30 @@
         // Wallet option handlers
         document.getElementById('walletConnectOption').onclick = function(e) {
             e.preventDefault();
-            alert('Wallet Connect integration coming soon!'); // Replace with your connection logic
+            alert('Wallet Connect integration coming soon!'); // Placeholder only
         };
         document.getElementById('vworldOption').onclick = async function(e) {
             e.preventDefault();
-            let provider = window.vechain;
-            await connectWallet(provider, "VeWorld");
+            await connectWallet("VeWorld");
         };
         document.getElementById('sync2Option').onclick = async function(e) {
             e.preventDefault();
-            let provider = window.sync2;
-            await connectWallet(provider, "Sync2");
+            await connectWallet("Sync2");
         };
         document.getElementById('ledgerOption').onclick = function(e) {
             e.preventDefault();
             alert('Ledger connection requires a specific implementation and is not supported directly in browser.'); // Placeholder
         };
 
-        // Connect wallet logic
-        async function connectWallet(provider, name) {
+        let selectedWallet = null;
+
+        // Connect wallet logic (for display/info only)
+        async function connectWallet(name) {
             const statusDiv = document.getElementById('status');
+            let provider = null;
+            if (name === "VeWorld" && window.vechain) provider = window.vechain;
+            if (name === "Sync2" && window.sync2) provider = window.sync2;
+
             if (!provider) {
                 statusDiv.innerText = `No ${name} wallet found! Please install it.`;
                 statusDiv.className = 'status error';
@@ -253,16 +257,18 @@
                 return;
             }
             try {
-                const accounts = await provider.request({ method: 'eth_requestAccounts' });
-                const address = accounts[0];
-                document.getElementById('walletAddress').innerText = address;
+                // For VeWorld/Sync2, show address info via Connex
+                const connex = new Connex.Vendor('test');
+                const account = await connex.thor.account(window.vechain ? window.vechain.selectedAddress : window.sync2.selectedAddress);
+                document.getElementById('walletAddress').innerText = account.address;
                 document.getElementById('walletInfo').style.display = 'flex';
-                document.getElementById('networkInfo').innerText = 'Testnet'; // You can detect network if needed
+                document.getElementById('networkInfo').innerText = 'Testnet';
                 statusDiv.innerText = `Connected with ${name}`;
                 statusDiv.className = 'status success';
                 statusDiv.style.display = 'block';
+                selectedWallet = name;
             } catch (err) {
-                statusDiv.innerText = "User denied wallet connection.";
+                statusDiv.innerText = "Could not fetch wallet address.";
                 statusDiv.className = 'status error';
                 statusDiv.style.display = 'block';
             }
@@ -314,34 +320,21 @@
             statusDiv.innerText = 'Preparing registration transaction...';
 
             // Prefer VeWorld, fallback to Sync2
-            const provider = window.vechain || window.sync2;
-            if (!provider) {
-                statusDiv.innerText = "No VeWorld or Sync2 wallet detected.";
-                statusDiv.className = 'status error';
-                return;
-            }
+            const connex = new Connex.Vendor('test');
             try {
-                // Prepare ABI encoding for register(bytes32)
-                if (!window.Connex || !Connex.utils || !Connex.utils.abiEncodeFunctionCall) {
-                    statusDiv.innerText = "Connex ABI encoding not available.";
-                    statusDiv.className = 'status error';
-                    return;
-                }
+                // ABI encode for register(bytes32)
                 const idHex = '0x' + currentHash;
                 const data = Connex.utils.abiEncodeFunctionCall({
                     name: "register",
                     type: "function",
                     inputs: [{ name: "id", type: "bytes32" }]
                 }, [idHex]);
-                const tx = {
+                // Build and sign transaction
+                await connex.sign('tx', [{
                     to: REGISTRY_CONTRACT,
-                    value: '0',
+                    value: 0,
                     data: data
-                };
-                await provider.request({
-                    method: 'eth_sendTransaction',
-                    params: [tx]
-                });
+                }]).request();
                 statusDiv.innerText = "Transaction sent! Wait for confirmation, then use the lookup link above.";
                 statusDiv.className = 'status success';
             } catch (err) {
@@ -350,20 +343,14 @@
             }
         };
 
-        // (Optional) Transaction send logic for your transaction tester (unchanged)
+        // Transaction send logic using Connex
         document.getElementById('sendTransaction').onclick = async function() {
             const statusDiv = document.getElementById('status');
             const recipient = document.getElementById('recipient').value.trim();
             const amount = document.getElementById('amount').value.trim();
             const txType = document.getElementById('txType').value;
-            let provider = window.vechain || window.sync2;
+            const connex = new Connex.Vendor('test');
 
-            if (!provider) {
-                statusDiv.innerText = "Please connect a wallet first.";
-                statusDiv.className = 'status error';
-                statusDiv.style.display = 'block';
-                return;
-            }
             if (!recipient || !amount) {
                 statusDiv.innerText = "Please enter recipient and amount.";
                 statusDiv.className = 'status error';
@@ -376,12 +363,13 @@
             statusDiv.style.display = 'block';
 
             try {
-                let tx = {
-                    to: recipient,
-                    value: (BigInt(parseFloat(amount) * 1e18)).toString(),
-                };
-
-                if (txType === 'contract') {
+                let tx = null;
+                if (txType === 'vet') {
+                    tx = [{
+                        to: recipient,
+                        value: (BigInt(parseFloat(amount) * 1e18)).toString()
+                    }];
+                } else {
                     const contractAddr = document.getElementById('contractAddress').value.trim();
                     const funcData = document.getElementById('functionData').value.trim();
                     if (!contractAddr || !funcData) {
@@ -389,18 +377,14 @@
                         statusDiv.className = 'status error';
                         return;
                     }
-                    tx = {
+                    tx = [{
                         to: contractAddr,
-                        value: '0',
+                        value: 0,
                         data: funcData
-                    };
+                    }];
                 }
 
-                await provider.request({
-                    method: 'eth_sendTransaction',
-                    params: [tx]
-                });
-
+                await connex.sign('tx', tx).request();
                 statusDiv.innerText = "Transaction sent! Check your wallet for confirmation.";
                 statusDiv.className = 'status success';
             } catch (err) {
