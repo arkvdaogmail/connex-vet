@@ -424,13 +424,16 @@
                 statusDiv.innerText = "Transaction sent! Check your wallet for confirmation.";
                 statusDiv.className = 'status success';
 
-                let txid = txRes.txid;
-                explorerDiv.innerHTML = `
-                    <b>Tx Hash:</b> <a href="https://explore-testnet.vechain.org/transactions/${txid}" target="_blank">${txid}</a><br>
-                    <b>Explorer Events:</b> <a href="https://explore-testnet.vechain.org/transactions/${txid}#events" target="_blank">View Events Tab</a><br>
-                    <b>Lookup (Info Tab):</b> <a href="https://explore-testnet.vechain.org/transactions/${txid}#info" target="_blank">Info Tab</a>
-                    <br><span style="font-size:13px;color:#aaa">If you don't see your event yet, please wait for block confirmation and refresh the explorer page.</span>
-                `;
+               let txid = txRes.txid;
+explorerDiv.innerHTML = `
+    <b>Registration complete!</b><br>
+    <b>Business ID:</b> <span style="color:#4ade80">${document.getElementById('business-id').value}</span><br>
+    <b>SHA256:</b> <span style="color:#60a5fa">${currentHash}</span><br>
+    <b>Tx Hash:</b> <a href="https://explore-testnet.vechain.org/transactions/${txid}" target="_blank">${txid}</a><br>
+    <b>Explorer Events:</b> <a href="https://explore-testnet.vechain.org/transactions/${txid}#events" target="_blank">View Events Tab</a><br>
+    <b>Lookup (Info Tab):</b> <a href="https://explore-testnet.vechain.org/transactions/${txid}#info" target="_blank">Info Tab</a>
+    <br><span style="font-size:13px;color:#aaa">If you don't see your event yet, please wait for block confirmation and refresh the explorer page.</span>
+`;
 
                 fetch(`https://explore-testnet.vechain.org/api/transactions/${txid}`)
                   .then(r => r.json())
