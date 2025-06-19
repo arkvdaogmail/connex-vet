@@ -213,9 +213,8 @@
             <div class="hash-output" id="hashOutput"></div>
             <div class="sha-actions">
                 <button id="registerOnChainBtn" style="display:none;">Register on VeChain & Show Events</button>
-                <a id="lookupLink" href="#" target="_blank" style="display:none;">Lookup on VeChainStats</a>
+                <a id="lookupLink" href="#" target="_blank" style="display:none;">Lookup on VeChain Explorer</a>
             </div>
-            <!-- MOVED EXPLORER OUTPUT HERE -->
             <div id="explorerOutput" class="status">
                 Explorer and event output will appear here after a transaction or registration.
             </div>
@@ -314,12 +313,10 @@
             currentHash = shaHash;
             document.getElementById('hashOutput').innerText = "SHA256: " + shaHash;
             document.getElementById('hashOutput').style.display = 'block';
-            // Show register button and lookup link
+            // Show register button ONLY
             document.getElementById('registerOnChainBtn').style.display = 'inline-block';
-            document.getElementById('lookupLink').href = "https://verify.vechainstats.com/#/lookup/" + shaHash;
-            document.getElementById('lookupLink').style.display = 'inline-block';
+            document.getElementById('lookupLink').style.display = 'none'; // Only show after tx!
             document.getElementById('status').style.display = 'none';
-            // Do not clear explorer output, leave default message
         };
 
         // VeChain Identity Registry contract address (testnet)
@@ -360,6 +357,9 @@
                     <b>Explorer Events:</b> <a href="https://explore-testnet.vechain.org/transactions/${txid}#events" target="_blank">View Events Tab</a>
                     <br><span style="font-size:13px;color:#aaa">If you don't see your event yet, please wait for block confirmation and refresh the explorer page.</span>
                 `;
+                // Set lookup link to explorer info tab and show it!
+                document.getElementById('lookupLink').href = "https://explore-testnet.vechain.org/transactions/" + txid + "#info";
+                document.getElementById('lookupLink').style.display = 'inline-block';
 
                 // Optionally, fetch and display event output directly in your UI
                 fetch(`https://explore-testnet.vechain.org/api/transactions/${txid}`)
@@ -373,6 +373,8 @@
             } catch (err) {
                 statusDiv.innerText = "Error: " + (err.message || err);
                 statusDiv.className = 'status error';
+                explorerDiv.innerHTML = "<b style='color:#f87171'>Error: " + (err.message || err) + "</b>";
+                document.getElementById('lookupLink').style.display = 'none';
             }
         };
 
@@ -440,6 +442,7 @@
             } catch (err) {
                 statusDiv.innerText = "Error: " + (err.message || err);
                 statusDiv.className = 'status error';
+                explorerDiv.innerHTML = "<b style='color:#f87171'>Error: " + (err.message || err) + "</b>";
             }
         };
     </script>
