@@ -6,7 +6,7 @@ import Link from "next/link";
 import { default as NextImage } from "next/image";
 import Icon from "@/components/Icon";
 import SimpleList from "@/components/SimpleList";
-import styles from "./Home.module.sass";
+import styles from '../components/Options/Options.module.sass';
 
 const HomePage = () => {
     const [activeId, setActiveId] = useState(0);
