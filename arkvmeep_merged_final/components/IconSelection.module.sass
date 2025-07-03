@@ -1,0 +1,136 @@
+@import @/styles/variables
+
+.iconSelection
+    position: relative
+    z-index: 4
+    flex-shrink: 0
+    margin-right: 16px
+    &.visible
+        .head
+            background: rgba($n2, .1)
+            &:active
+                background: rgba($n3, .5)
+        .body
+            visibility: visible
+            opacity: 1
+
+.head
+    width: 44px
+    height: 44px
+    padding: 0
+    border-radius: 50%
+    background: rgba($n2, .05)
+    border: none
+    font-size: 0
+    cursor: pointer
+    outline: none
+    transition: background .2s
+    svg
+        fill: $text-secondary
+        transition: transform .2s
+    &:active
+        background: rgba($n3, .5)
+        svg
+            transform: scale(.85)
+
+.body
+    position: absolute
+    left: -12px
+    bottom: calc(100% + 20px)
+    z-index: 2
+    width: 332px
+    visibility: hidden
+    backdrop-filter: blur(50px)
+    box-shadow: 0px 24px 32px -12px rgba(18, 18, 18, 0.10), 2px 4px 16px 0px rgba(248, 248, 248, 0.06) inset
+    // background: rgba(248, 248, 248, 0.05)
+    background: rgb(59,59,59)
+    border-radius: 24px
+    opacity: 0
+    transition: all .2s
+    &:after
+        content: ""
+        position: absolute
+        inset: 0
+        border-radius: 24px
+        border: 1px solid rgba(255, 255, 255, 0.07)
+        mask-image: linear-gradient(175deg, black, transparent 55%)
+    &.bodyDown
+        top: calc(100% + 20px)
+        bottom: auto
+
+.inner
+    position: relative
+    z-index: 2
+    padding: 16px 12px 12px
+
+.group
+    &:not(:last-child)
+        margin-bottom: 16px
+
+.category
+    margin-bottom: 4px
+    padding-left: 12px
+    +caption-sm
+    color: rgba($n2, .25)
+
+.icons,
+.colors
+    display: flex
+    flex-wrap: wrap
+
+.icon,
+.color
+    display: flex
+    justify-content: center
+    align-items: center
+    width: 44px
+    height: 44px
+    padding: 0
+    background: transparent
+    border: none
+    border-radius: 50%
+    font-size: 0
+    cursor: pointer
+    outline: none
+
+.icon
+    transition: background .2s
+    svg
+        fill: rgba($n2, .4)
+        transition: fill .2s
+    &:hover
+        svg
+            fill: $text-primary
+    &.selected
+        background: rgba($n2, .1)
+        svg
+            fill: rgba($n2, .72)
+
+.color
+    position: relative
+    &:after
+        content: ""
+        position: absolute
+        top: 50%
+        left: 50%
+        z-index: 2
+        transform: translate(-50%,-50%)
+        width: 12px
+        height: 12px
+        border-radius: 50%
+        background: rgba($n3, .8)
+        opacity: 0
+        transition: opacity .2s
+    &:hover
+        .circle
+            transform: scale(1.1)
+    &.selected
+        &:after
+            opacity: 1
+
+.circle
+    width: 24px
+    height: 24px
+    border-radius: 50%
+    background: inherit
+    transition: transform .2s
