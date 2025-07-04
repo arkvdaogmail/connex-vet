@@ -1,0 +1,81 @@
+@import @/styles/variables
+
+.actions
+    position: absolute
+    top: 50%
+    right: 44px
+    transform: translateY(-50%)
+    display: flex
+    gap: 12px
+    visibility: hidden
+    opacity: 0
+    transition: all .2s
+    &.visible
+        visibility: visible
+        opacity: 1
+
+.action
+    position: relative
+    display: flex
+    justify-content: center
+    align-items: center
+    padding: 0
+    border: 0
+    background: none
+    cursor: pointer
+    svg
+        fill: rgba($n2, .56)
+        transition: fill .2s
+    &:hover
+        svg
+            fill: rgba($n2, .76)
+        .tooltip
+            visibility: visible
+            opacity: 1
+
+.tooltip
+    position: absolute
+    left: 50%
+    bottom: calc(100% + 10px)
+    z-index: 5
+    transform: translateX(-50%)
+    padding: 4px 8px
+    white-space: nowrap
+    border-radius: 8px
+    background: rgba($n3, 0.60)
+    backdrop-filter: blur(50px)
+    font-size: 12px
+    line-height: 1.35
+    color: $text-secondary
+    visibility: hidden
+    opacity: 0
+    pointer-events: none
+    transition: all .2s
+    @media only screen and (max-width: "767px")
+        display: none
+    &:before,
+    &:after
+        content: ""
+        position: absolute
+    &:before
+        top: 100%
+        left: 50%
+        width: 12px
+        height: 6px
+        transform: translateX(-50%)
+        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='6' fill='none' viewBox='0 0 12 6'%3E%3Cpath d='M8.263 3.737L12 0H0l3.737 3.737c.792.792 1.188 1.188 1.645 1.336a2 2 0 0 0 1.236 0c.457-.148.853-.544 1.645-1.336z' fill='%23282828' fill-opacity='.6'/%3E%3C/svg%3E") no-repeat 50% 50% / 100% auto
+    &:after
+        inset: 0
+        border-radius: 8px
+        pointer-events: none
+        border: 1.5px solid rgba($n1, 0.05)
+        mask-image: linear-gradient(to bottom, black, transparent 100%)
+    &.tooltipDown
+        top: calc(100% + 14px)
+        bottom: auto
+        &:before
+            top: auto
+            bottom: 100%
+            transform: translateX(-50%) rotate(180deg)
+        &:after
+            mask-image: linear-gradient(to top, black, transparent 100%)
