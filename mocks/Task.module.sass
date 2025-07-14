@@ -1,0 +1,90 @@
+@import @/styles/variables
+
+.task
+    position: relative
+    &.completed
+        .inner
+            background: rgba($n2, .02)
+        .radio
+            &:before
+                opacity: 1
+        .title
+            color: $text-tertiary
+    &.showOptions
+        z-index: 1
+        .inner
+            padding-right: 132px
+    &.fadeOut
+        animation: fadeOut 0.15s linear forwards
+    &.fadeIn
+        animation: fadeIn 0.15s linear forwards
+    &:hover
+        .inner
+            background: rgba($n2, .1)
+        .radio
+            border-color: rgba($n2, .5)
+        .drag
+            svg
+                opacity: .5
+
+.inner
+    width: 100%
+    padding: 18px 48px
+    background: rgba($n2, .05)
+    backdrop-filter: blur(5px)
+    border-radius: 12px
+    user-select: none
+    transition: background .2s
+
+.radio
+    position: absolute
+    top: 16px
+    left: 12px
+    width: 24px
+    height: 24px
+    border: 3px solid rgba($n2, .25)
+    border-radius: 50%
+    cursor: pointer
+    transition: border-color .2s
+    &:before
+        content: ""
+        position: absolute
+        inset: 3px
+        border-radius: 50%
+        background: linear-gradient(180deg, rgba(248, 248, 248, 0.90) 0%, rgba(248, 248, 248, 0.30) 100%)
+        opacity: 0
+        transition: opacity .2s
+
+.drag
+    position: absolute
+    top: 50%
+    right: 12px
+    transform: translateY(-50%)
+    font-size: 0
+    cursor: pointer
+    svg
+        fill: $text-tertiary
+        opacity: .25
+        transition: opacity .2s
+
+@keyframes fadeOut
+    0%
+        opacity: 1
+        height: 56px
+    30%
+        opacity: 0
+    100%
+        opacity: 0
+        height: 0
+
+@keyframes fadeIn
+    0%
+        opacity: 0
+        height: 0
+    70%
+        opacity: 0
+    100%
+        opacity: 1
+        height: 56px
+            
+
