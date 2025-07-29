@@ -1,4 +1,5 @@
 "use client";
+
 import Link from "next/link";
 
 const HomePage = () => {
@@ -10,6 +11,8 @@ const HomePage = () => {
                     Decentralized Proof of Creation & Verification
                 </p>
             </div>
+
+            {/* Navigation Cards */}
             <div className="grid md:grid-cols-3 gap-6 max-w-4xl w-full">
                 <Link href="/business" className="group">
                     <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-6 hover:bg-white/20 transition-all duration-300 transform hover:scale-105">
@@ -18,6 +21,7 @@ const HomePage = () => {
                         <p className="text-blue-200">Register your entity with SHA-256 proof</p>
                     </div>
                 </Link>
+
                 <Link href="/proof" className="group">
                     <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-6 hover:bg-white/20 transition-all duration-300 transform hover:scale-105">
                         <div className="text-4xl mb-4">📄</div>
@@ -25,6 +29,7 @@ const HomePage = () => {
                         <p className="text-blue-200">Upload files to record their hash</p>
                     </div>
                 </Link>
+
                 <Link href="/verify" className="group">
                     <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-6 hover:bg-white/20 transition-all duration-300 transform hover:scale-105">
                         <div className="text-4xl mb-4">✅</div>
@@ -38,4 +43,3 @@ const HomePage = () => {
 };
 
 export default HomePage;
-
