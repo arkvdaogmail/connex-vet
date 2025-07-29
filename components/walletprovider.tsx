@@ -21,62 +21,33 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     const [connex, setConnex] = useState<any>(null);
 
     useEffect(() => {
-        // Check for VeWorld or Sync2 wallet
-        const checkWallet = () => {
-            if (typeof window !== 'undefined') {
-                if (window.connex) {
-                    setConnex(window.connex);
-                    console.log('VeChain wallet detected');
-                } else {
-                    console.log('No VeChain wallet found');
-                }
-            }
-            setLoading(false);
-        };
-
-        // Check immediately if window is available
-        if (typeof window !== 'undefined') {
-            checkWallet();
-        } else {
-            // If SSR, just set loading to false
-            setLoading(false);
-        }
-
-        // Also check after a short delay in case wallet loads async
-        const timer = setTimeout(() => {
-            if (typeof window !== 'undefined') {
-                checkWallet();
-            }
-        }, 2000);
+        // Simple and fast wallet check
+        setLoading(false); // Stop loading immediately
         
-        return () => clearTimeout(timer);
+        if (typeof window !== 'undefined' && window.connex) {
+            setConnex(window.connex);
+        }
     }, []);
 
     const connectWallet = async () => {
         try {
             if (!window.connex) {
-                alert('VeChain wallet not found. Please install VeWorld.');
+                alert('Install VeWorld wallet');
                 return;
             }
             
             setConnex(window.connex);
             
-            const message: Connex.Vendor.CertMessage = {
+            const cert = await window.connex.vendor.sign('cert').request({
                 purpose: 'identification',
-                payload: { type: 'text', content: 'Connect to ARKV DAO' }
-            };
+                payload: { type: 'text', content: 'Connect to ARKV' }
+            });
             
-            const cert = await window.connex.vendor.sign('cert').request(message);
-            
-            if (cert && cert.annex && cert.annex.signer) {
+            if (cert?.annex?.signer) {
                 setAccount(cert.annex.signer);
-                console.log('✅ Wallet connected:', cert.annex.signer);
-            } else {
-                throw new Error('No signer address returned');
             }
         } catch (error: any) {
-            console.error("❌ Wallet connection failed:", error);
-            alert('Failed to connect wallet: ' + error.message);
+            console.log('Connection cancelled');
         }
     };
 
