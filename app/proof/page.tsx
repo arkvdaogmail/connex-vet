@@ -1,11 +1,10 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { useWallet, useConnex } from '@vechain/dapp-kit-react';
+import { useWallet } from "@/components/walletprovider";
 
 const ProofPage = () => {
-    const { account } = useWallet();
-    const { thor, vendor } = useConnex();
+    const { account, connectWallet, connex } = useWallet();
     const [file, setFile] = useState<File | null>(null);
     const [hash, setHash] = useState('');
     const [txId, setTxId] = useState('');
@@ -21,7 +20,7 @@ const ProofPage = () => {
     };
 
     const payGasAndGenerateHash = async () => {
-        if (!file || !vendor) return;
+        if (!file || !connex) return;
         
         setLoading(true);
         try {
@@ -38,7 +37,7 @@ const ProofPage = () => {
                 data: '0x' + calculatedHash
             };
 
-            const result = await vendor.sign('tx', [clause]).request();
+            const result = await connex.vendor.sign('tx', [clause]).request();
             
             if (result) {
                 setHash(calculatedHash);
@@ -93,7 +92,12 @@ const ProofPage = () => {
                         {!account ? (
                             <div>
                                 <p className="text-yellow-200 mb-4">Connect your VeChain wallet to pay gas and generate hash</p>
-                                <w3m-button />
+                                <button 
+                                    onClick={connectWallet}
+                                    className="w-full bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-semibold"
+                                >
+                                    🔗 Connect VeChain Wallet
+                                </button>
                             </div>
                         ) : (
                             <div>
