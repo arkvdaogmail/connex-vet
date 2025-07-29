@@ -21,36 +21,50 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     const [connex, setConnex] = useState<any>(null);
 
     useEffect(() => {
-        if (window.connex) {
-            try {
-                const connexInstance = new window.connex.Connex({
-                    node: 'https://testnet.vecha.in/',
-                    network: 'test'
-                } );
-                setConnex(connexInstance);
-            } catch (e) {
-                console.error("Failed to initialize Connex", e);
+        // Check for VeWorld or Sync2 wallet
+        const checkWallet = () => {
+            if (window.connex) {
+                setConnex(window.connex);
+                console.log('VeChain wallet detected');
+            } else {
+                console.log('No VeChain wallet found');
             }
-        }
-        setLoading(false);
+            setLoading(false);
+        };
+
+        // Check immediately
+        checkWallet();
+
+        // Also check after a short delay in case wallet loads async
+        const timer = setTimeout(checkWallet, 1000);
+        return () => clearTimeout(timer);
     }, []);
 
     const connectWallet = async () => {
-        if (!connex) {
-            alert('VeWorld wallet not found.');
+        if (!window.connex) {
+            alert('VeChain wallet not found. Please install VeWorld or Sync2.');
             return;
         }
+        
+        setConnex(window.connex);
+        
         try {
             const message: Connex.Vendor.CertMessage = {
                 purpose: 'identification',
-                payload: { type: 'text', content: 'Sign a certificate to prove your identity.' }
+                payload: { type: 'text', content: 'Connect to ARKV DAO - Proof of Creation Platform' }
             };
-            const cert = await connex.vendor.sign('cert').request(message);
-            if (cert) {
+            const cert = await window.connex.vendor.sign('cert').request(message);
+            if (cert && cert.annex && cert.annex.signer) {
                 setAccount(cert.annex.signer);
+                console.log('Wallet connected:', cert.annex.signer);
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error("Failed to connect wallet:", error);
+            if (error.message?.includes('user denied')) {
+                alert('Connection rejected by user');
+            } else {
+                alert('Failed to connect wallet. Please try again.');
+            }
         }
     };
 

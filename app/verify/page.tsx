@@ -47,20 +47,31 @@ const VerifyPage = () => {
 
         let results: typeof mockDatabase = [];
         
+        // Get uploaded proof records from localStorage
+        const uploadedRecords = JSON.parse(localStorage.getItem('arkv_proof_records') || '[]');
+        
+        // Combine mock data with uploaded records for demo
+        const allRecords = [...mockDatabase, ...uploadedRecords];
+        
         switch (searchType) {
             case 'sha-id':
-                results = mockDatabase.filter(record => 
-                    record.shaId.toLowerCase().includes(searchQuery.toLowerCase())
+                results = allRecords.filter(record => 
+                    record.shaId?.toLowerCase().includes(searchQuery.toLowerCase())
+                );
+                break;
+            case 'tx-hash':
+                results = allRecords.filter(record => 
+                    record.txHash?.toLowerCase().includes(searchQuery.toLowerCase())
                 );
                 break;
             case 'domain':
-                results = mockDatabase.filter(record => 
-                    record.domain.toLowerCase().includes(searchQuery.toLowerCase())
+                results = allRecords.filter(record => 
+                    record.domain?.toLowerCase().includes(searchQuery.toLowerCase())
                 );
                 break;
             case 'entity':
-                results = mockDatabase.filter(record => 
-                    record.entityName.toLowerCase().includes(searchQuery.toLowerCase())
+                results = allRecords.filter(record => 
+                    (record.entityName || record.fileName)?.toLowerCase().includes(searchQuery.toLowerCase())
                 );
                 break;
         }
@@ -88,9 +99,10 @@ const VerifyPage = () => {
                                 onChange={(e) => setSearchType(e.target.value)}
                                 className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded text-white"
                             >
-                                <option value="sha-id">SHA-ID</option>
+                                <option value="sha-id">SHA-ID (Document Hash)</option>
+                                <option value="tx-hash">Transaction Hash</option>
                                 <option value="domain">Domain</option>
-                                <option value="entity">Entity Name</option>
+                                <option value="entity">Entity Name / File Name</option>
                             </select>
                         </div>
                         <div className="md:col-span-2">
@@ -103,8 +115,9 @@ const VerifyPage = () => {
                                     className="flex-1 px-3 py-2 bg-white/10 border border-white/20 rounded text-white placeholder-gray-300"
                                     placeholder={
                                         searchType === 'sha-id' ? 'Enter SHA-256 hash...' :
+                                        searchType === 'tx-hash' ? 'Enter transaction hash...' :
                                         searchType === 'domain' ? 'Enter domain name...' :
-                                        'Enter entity name...'
+                                        'Enter entity/file name...'
                                     }
                                     required
                                 />

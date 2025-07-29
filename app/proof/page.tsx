@@ -90,6 +90,24 @@ const ProofPage = () => {
             
             if (result) {
                 setTxid(result.txid);
+                
+                // Store proof record for verification lookup
+                const proofRecord = {
+                    shaId: hash.substring(2), // Remove 0x prefix
+                    txHash: result.txid,
+                    fileName: file.name,
+                    fileSize: file.size,
+                    fileType: file.type,
+                    timestamp: new Date().toISOString(),
+                    creator: account,
+                    fee: '1 VET'
+                };
+                
+                // Store in localStorage for demo (in production, use proper database)
+                const existingRecords = JSON.parse(localStorage.getItem('arkv_proof_records') || '[]');
+                existingRecords.push(proofRecord);
+                localStorage.setItem('arkv_proof_records', JSON.stringify(existingRecords));
+                
                 setStatus('✅ Success! Your document hash has been recorded on VeChain TestNet with 1 VET fee.');
             } else {
                 setStatus('Error: Transaction was cancelled or failed.');
