@@ -1,16 +1,10 @@
 "use client";
-
 import { useState } from "react";
 import Link from "next/link";
-
-// This makes the 'connex' object available from the VeWorld wallet
-declare global {
-    interface Window {
-        connex: any;
-    }
-}
+import { useWallet } from "@/components/WalletProvider";
 
 const ProofPage = () => {
+    const { account, connex } = useWallet();
     const [file, setFile] = useState<File | null>(null);
     const [status, setStatus] = useState('');
     const [txid, setTxid] = useState('');
@@ -18,9 +12,7 @@ const ProofPage = () => {
     const [processing, setProcessing] = useState(false);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const selectedFile = e.target.files?.[0];
-        setFile(selectedFile || null);
-        // Clear previous results when a new file is selected
+        setFile(e.target.files?.[0] || null);
         setStatus('');
         setTxid('');
         setDocHash('');
@@ -28,14 +20,12 @@ const ProofPage = () => {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (!file) {
-            setStatus('Error: Please select a file first.');
+        if (!account) {
+            setStatus('Error: Please connect your wallet first.');
             return;
         }
-
-        // Check if the VeWorld wallet is available
-        if (!window.connex) {
-            setStatus('Error: VeChain wallet not found. Please install and unlock VeWorld.');
+        if (!file) {
+            setStatus('Error: Please select a file.');
             return;
         }
 
@@ -43,30 +33,20 @@ const ProofPage = () => {
         setStatus('Calculating document hash...');
 
         try {
-            // 1. Create the unique hash of the document
             const fileBuffer = await file.arrayBuffer();
-            const hashBuffer = await crypto.subtle.digest('SHA-256', fileBuffer);
-            const hash = '0x' + Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+            const hash = '0x' + Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', fileBuffer))).map(b => b.toString(16).padStart(2, '0')).join('');
             setDocHash(hash);
 
             setStatus('Please check your wallet to approve the transaction...');
 
-            // 2. Connect to the wallet and request a transaction signature
-            const signingService = window.connex.vendor.sign('tx');
+            const signingService = connex.vendor.sign('tx');
             signingService.comment('Notarize document hash on TestNet');
             
-            const { txid } = await signingService.request([{
-                to: null, // This creates a contract clause, not a VET transfer
-                value: '0x0',
-                data: hash
-            }]);
-
-            // 3. Success! Show the real Transaction ID (TXID)
-            setTxid(txid);
+            const result = await signingService.request([{ to: null, value: '0x0', data: hash }]);
+            setTxid(result.txid);
             setStatus('✅ Success! Your document hash has been recorded on the VeChain TestNet.');
 
         } catch (error: any) {
-            console.error(error);
             setStatus(`Error: The transaction failed. Message: ${error.message}`);
         } finally {
             setProcessing(false);
@@ -74,33 +54,29 @@ const ProofPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-purple-900 to-blue-900 text-white p-4">
-            <div className="max-w-2xl mx-auto">
+        <div className="flex justify-center items-center min-h-screen px-4 pt-20">
+            <div className="w-full max-w-2xl">
                 <div className="mb-6">
                     <Link href="/" className="text-blue-300 hover:text-white">← Back to Home</Link>
-                    <h1 className="text-4xl font-bold mt-4 mb-2">VeChain Document Notarization</h1>
-                    <p className="text-blue-200">Upload a file to permanently record its hash on the VeChain TestNet.</p>
+                    <h1 className="text-4xl font-bold mt-4 mb-2">Proof Upload</h1>
+                    <p className="text-blue-200">Upload a file to record its hash on the VeChain TestNet.</p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-6 mb-6">
-                    <div className="mb-6">
-                        <label className="block text-sm font-medium mb-2">Select File</label>
-                        <input
-                            type="file"
-                            onChange={handleFileChange}
-                            className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded text-white file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-blue-600 file:text-white"
-                            required
-                        />
+                {!account ? (
+                     <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-6 text-center">
+                        <p className="text-red-200">Please connect your wallet using the button in the top-right corner to continue.</p>
                     </div>
-
-                    <button
-                        type="submit"
-                        disabled={processing || !file}
-                        className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 px-6 py-3 rounded-lg font-semibold transition-colors"
-                    >
-                        {processing ? 'Processing...' : 'Notarize on VeChain'}
-                    </button>
-                </form>
+                ) : (
+                    <form onSubmit={handleSubmit} className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-6 mb-6">
+                        <div className="mb-6">
+                            <label className="block text-sm font-medium mb-2">Select File</label>
+                            <input type="file" onChange={handleFileChange} className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded text-white file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-blue-600 file:text-white" required />
+                        </div>
+                        <button type="submit" disabled={processing || !file} className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 px-6 py-3 rounded-lg font-semibold transition-colors">
+                            {processing ? 'Processing...' : 'Notarize on VeChain'}
+                        </button>
+                    </form>
+                )}
 
                 {status && (
                     <div className="bg-blue-500/20 border border-blue-500/30 rounded-lg p-4 mb-4">
@@ -114,14 +90,7 @@ const ProofPage = () => {
                         <div className="space-y-3">
                             <div>
                                 <label className="block text-sm font-medium text-gray-300">Transaction ID (TXID):</label>
-                                <a 
-                                    href={`https://explore-testnet.vechain.org/transactions/${txid}`} 
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
-                                    className="font-mono text-sm text-green-400 bg-gray-800 p-2 rounded break-all block hover:underline"
-                                >
-                                    {txid}
-                                </a>
+                                <a href={`https://explore-testnet.vechain.org/transactions/${txid}`} target="_blank" rel="noopener noreferrer" className="font-mono text-sm text-green-400 bg-gray-800 p-2 rounded break-all block hover:underline">{txid}</a>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-300">Document Hash:</label>
