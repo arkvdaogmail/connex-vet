@@ -4,6 +4,14 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Script from "next/script";
 
+interface BusinessFormData {
+    entityName: string;
+    domain: string;
+    country: string;
+    legalType: string;
+    category: string;
+}
+
 const BusinessPage = () => {
     const [formData, setFormData] = useState({
         entityName: '',

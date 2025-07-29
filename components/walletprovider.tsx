@@ -5,6 +5,19 @@ declare global {
     interface Window { connex: any; }
 }
 
+// Connex type definitions
+declare namespace Connex {
+    namespace Vendor {
+        interface CertMessage {
+            purpose: string;
+            payload: {
+                type: string;
+                content: string;
+            };
+        }
+    }
+}
+
 interface WalletContextType {
     account: string | null;
     connectWallet: () => void;
@@ -21,36 +34,60 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     const [connex, setConnex] = useState<any>(null);
 
     useEffect(() => {
+        console.log('WalletProvider useEffect triggered');
+        console.log('window.connex:', window.connex);
+        
         if (window.connex) {
             try {
+                console.log('Initializing Connex...');
                 const connexInstance = new window.connex.Connex({
                     node: 'https://testnet.vecha.in/',
                     network: 'test'
-                } );
+                });
+                console.log('Connex instance created:', connexInstance);
                 setConnex(connexInstance);
             } catch (e) {
                 console.error("Failed to initialize Connex", e);
+                const errorMessage = e instanceof Error ? e.message : 'Unknown error';
+                alert(`Failed to initialize VeChain connection: ${errorMessage}`);
             }
+        } else {
+            console.warn('window.connex not available. VeWorld wallet may not be installed.');
         }
         setLoading(false);
     }, []);
 
     const connectWallet = async () => {
+        console.log('Attempting to connect wallet...');
+        
         if (!connex) {
-            alert('VeWorld wallet not found.');
+            console.error('Connex not available');
+            alert('VeWorld wallet not found. Please install VeWorld wallet extension or use VeWorld mobile app.');
             return;
         }
+        
         try {
+            console.log('Connex available, requesting certificate...');
             const message: Connex.Vendor.CertMessage = {
                 purpose: 'identification',
                 payload: { type: 'text', content: 'Sign a certificate to prove your identity.' }
             };
+            
+            console.log('Requesting certificate with message:', message);
             const cert = await connex.vendor.sign('cert').request(message);
+            
             if (cert) {
+                console.log('Certificate received:', cert);
                 setAccount(cert.annex.signer);
+                console.log('Account set to:', cert.annex.signer);
+            } else {
+                console.error('No certificate received');
+                alert('Failed to get certificate from wallet');
             }
         } catch (error) {
             console.error("Failed to connect wallet:", error);
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            alert(`Failed to connect wallet: ${errorMessage}`);
         }
     };
 

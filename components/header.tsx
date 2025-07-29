@@ -1,5 +1,5 @@
 "use client";
-import { useWallet } from './WalletProvider';
+import { useWallet } from './walletprovider';
 
 const Header = () => {
     const { account, connectWallet, disconnectWallet, loading } = useWallet();

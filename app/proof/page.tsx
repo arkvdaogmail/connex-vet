@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { useWallet } from "@/components/WalletProvider";
+import { useWallet } from "@/components/walletprovider";
 
 const ProofPage = () => {
     const { account, connex } = useWallet();

@@ -221,7 +221,7 @@ const VerifyPage = () => {
                 <div className="mt-6 bg-yellow-500/20 border border-yellow-500/30 rounded-lg p-4">
                     <p className="text-sm text-yellow-200">
                         <strong>Demo Mode:</strong> This is showing mock data for demonstration. 
-                        Try searching for "techcorp", "innovatex", or partial SHA-IDs like "a1b2c3".
+                        Try searching for &ldquo;techcorp&rdquo;, &ldquo;innovatex&rdquo;, or partial SHA-IDs like &ldquo;a1b2c3&rdquo;.
                     </p>
                 </div>
             </div>
