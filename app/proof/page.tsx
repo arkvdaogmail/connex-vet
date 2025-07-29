@@ -9,43 +9,49 @@ const ProofPage = () => {
     const [hash, setHash] = useState('');
     const [txId, setTxId] = useState('');
     const [loading, setLoading] = useState(false);
-    const [step, setStep] = useState('upload'); // 'upload', 'pay', 'complete'
+    const [step, setStep] = useState('upload'); // 'upload', 'review', 'wallet', 'store', 'complete'
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const selectedFile = e.target.files?.[0];
         if (selectedFile) {
             setFile(selectedFile);
-            setStep('pay');
+            setLoading(true);
+            
+            // Calculate hash immediately when file is selected
+            try {
+                const arrayBuffer = await selectedFile.arrayBuffer();
+                const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                const calculatedHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                setHash(calculatedHash);
+                setStep('review'); // Show review step first
+            } catch (error) {
+                console.error('Hash calculation failed:', error);
+            }
+            setLoading(false);
         }
     };
 
-    const payGasAndGenerateHash = async () => {
-        if (!file || !connex) return;
+    const storeOnBlockchain = async () => {
+        if (!file || !connex || !hash) return;
         
         setLoading(true);
         try {
-            // Step 1: Calculate hash
-            const arrayBuffer = await file.arrayBuffer();
-            const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            const calculatedHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-            
-            // Step 2: Pay VTHO gas to store hash on VeChain
+            // Pay VTHO gas to store hash on VeChain
             const clause = {
                 to: '0x0000000000000000000000000000000000000000',
                 value: '0x0',
-                data: '0x' + calculatedHash
+                data: '0x' + hash
             };
 
             const result = await connex.vendor.sign('tx', [clause]).request();
             
             if (result) {
-                setHash(calculatedHash);
                 setTxId(result.txid);
                 setStep('complete');
             }
         } catch (error) {
-            console.error('Payment/hash failed:', error);
+            console.error('Blockchain storage failed:', error);
         }
         setLoading(false);
     };
