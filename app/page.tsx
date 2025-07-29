@@ -1,11 +1,9 @@
-// app/page.tsx
 "use client";
 
 import Link from "next/link";
 
 const HomePage = () => {
     return (
-        // The main div no longer needs the background color class, as it's in layout.tsx
         <div className="flex flex-col items-center justify-center min-h-screen px-4 pt-20">
             <div className="text-center mb-12">
                 <h1 className="text-6xl font-bold mb-4">ARKV DAO</h1>
