@@ -8,11 +8,7 @@ export const metadata: Metadata = {
   description: "Decentralized Proof of Creation & Verification Platform",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body className="antialiased">
@@ -26,4 +22,3 @@ export default function RootLayout({
     </html>
   );
 }
-
