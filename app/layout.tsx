@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { WalletProvider } from "@/components/WalletProvider";
-import Header from "@/components/Header";
+import { WalletProvider } from "@/components/walletprovider";
+import Header from "@/components/header";
 import "./globals.css";
 
 export const metadata: Metadata = {
