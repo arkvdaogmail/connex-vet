@@ -74,11 +74,11 @@ const ProofPage = () => {
             console.log('✅ Hash calculated:', hash);
 
             // Step 2: Prepare VeChain transaction
-            setStatus('💰 Preparing payment transaction (1 VET)...');
+            setStatus('💰 Preparing transaction (VTHO gas fee)...');
             
             const clause = {
-                to: '0x0000000000000000000000000000000000000000',
-                value: '1000000000000000000', // 1 VET
+                to: '0x0000000000000000000000000000000000000000', // null address for data storage
+                value: '0x0', // No VET transfer, just pay VTHO gas
                 data: hash
             };
 
@@ -105,14 +105,14 @@ const ProofPage = () => {
                     fileType: file.type,
                     timestamp: new Date().toISOString(),
                     creator: account,
-                    fee: '1 VET'
+                    fee: 'VTHO gas'
                 };
                 
                 const existingRecords = JSON.parse(localStorage.getItem('arkv_proof_records') || '[]');
                 existingRecords.push(proofRecord);
                 localStorage.setItem('arkv_proof_records', JSON.stringify(existingRecords));
                 
-                setStatus('✅ SUCCESS! Hash recorded on VeChain. Payment: 1 VET');
+                setStatus('✅ SUCCESS! Hash recorded on VeChain. Gas paid in VTHO.');
                 console.log('✅ Proof record saved:', proofRecord);
             } else {
                 throw new Error('No transaction ID returned');
@@ -138,7 +138,7 @@ const ProofPage = () => {
                 <div className="mb-6">
                     <Link href="/" className="text-blue-300 hover:text-white">← Back to Home</Link>
                     <h1 className="text-4xl font-bold mt-4 mb-2">Proof Upload</h1>
-                    <p className="text-blue-200">Upload a file to record its hash on VeChain TestNet (Fee: 1 VET)</p>
+                    <p className="text-blue-200">Upload a file to record its hash on VeChain TestNet (Gas: VTHO)</p>
                 </div>
 
                 {/* File Upload Form - Always Visible */}
@@ -172,7 +172,7 @@ const ProofPage = () => {
                                 <div className="mb-4">
                                     <div className="mb-4 p-3 bg-yellow-500/20 border border-yellow-500/30 rounded">
                                         <p className="text-sm text-yellow-200">
-                                            <strong>⚡ Transaction Fee:</strong> 1 VET + network gas fees<br/>
+                                            <strong>⚡ Gas Fee:</strong> VTHO (auto-deducted)<br/>
                                             <strong>💾 Storage:</strong> Document hash will be permanently recorded on VeChain TestNet
                                         </p>
                                     </div>
@@ -180,14 +180,14 @@ const ProofPage = () => {
                                         onClick={connectWallet}
                                         className="w-full bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-semibold transition-colors"
                                     >
-                                        Connect Wallet to Pay & Generate Hash
+                                        Connect Wallet & Generate Hash
                                     </button>
                                 </div>
                             ) : (
                                 <form onSubmit={handleSubmit}>
                                     <div className="mb-4 p-3 bg-yellow-500/20 border border-yellow-500/30 rounded">
                                         <p className="text-sm text-yellow-200">
-                                            <strong>⚡ Transaction Fee:</strong> 1 VET + network gas fees<br/>
+                                            <strong>⚡ Gas Fee:</strong> VTHO (auto-deducted)<br/>
                                             <strong>💾 Storage:</strong> Document hash will be permanently recorded on VeChain TestNet
                                         </p>
                                     </div>
@@ -197,7 +197,7 @@ const ProofPage = () => {
                                         disabled={processing || !file} 
                                         className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 disabled:cursor-not-allowed px-6 py-3 rounded-lg font-semibold transition-colors"
                                     >
-                                        {processing ? 'Processing...' : 'Pay 1 VET & Generate Hash'}
+                                        {processing ? 'Processing...' : 'Generate Hash (VTHO Gas)'}
                                     </button>
                                 </form>
                             )}
@@ -243,8 +243,8 @@ const ProofPage = () => {
                                 </div>
                             )}
                             <div>
-                                <label className="block text-sm font-medium text-gray-300">Fee Paid:</label>
-                                <p className="text-sm bg-gray-800 p-2 rounded">1 VET + gas fees</p>
+                                <label className="block text-sm font-medium text-gray-300">Gas Paid:</label>
+                                <p className="text-sm bg-gray-800 p-2 rounded">VTHO (transaction gas)</p>
                             </div>
                         </div>
                     </div>
