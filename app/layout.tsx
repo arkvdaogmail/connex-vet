@@ -1,7 +1,7 @@
 // app/layout.tsx
 import type { Metadata } from "next";
-import { WalletProvider } from "@/components/WalletProvider"; // Import the provider
-import Header from "@/components/Header"; // Import the new Header
+import { WalletProvider } from "@/components/WalletProvider";
+import Header from "@/components/Header";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -27,3 +27,4 @@ export default function RootLayout({
     </html>
   );
 }
+
