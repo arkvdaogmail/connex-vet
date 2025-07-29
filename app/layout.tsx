@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { DAppKitProvider } from '@vechain/dapp-kit-react';
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -11,17 +10,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className="antialiased">
-        <DAppKitProvider
-          config={{
-            nodeUrl: "https://testnet.veblocks.net/",
-            genesis: "test"
-          }}
-          usePersistence={true}
-        >
-          <div className="min-h-screen bg-gradient-to-br from-blue-900 to-purple-900 text-white">
-            <main>{children}</main>
-          </div>
-        </DAppKitProvider>
+        <div className="min-h-screen bg-gradient-to-br from-blue-900 to-purple-900 text-white">
+          <main>{children}</main>
+        </div>
       </body>
     </html>
   );
