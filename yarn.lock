@@ -494,7 +494,7 @@
     "@vechain/sdk-core" "1.2.0"
     valtio "1.13.2"
 
-"@vechain/dapp-kit-ui@2.0.2":
+"@vechain/dapp-kit-ui@^2.0.2", "@vechain/dapp-kit-ui@2.0.2":
   version "2.0.2"
   resolved "https://registry.npmjs.org/@vechain/dapp-kit-ui/-/dapp-kit-ui-2.0.2.tgz"
   integrity sha512-fr16WRe0EJoqpOY3D1obqvEGU0Y/yu9/J1RBZ1u6jk6LqAW8qFWPfDnF4Q/fnFccgKSwWyuFG4A21x0D+uOb4A==
