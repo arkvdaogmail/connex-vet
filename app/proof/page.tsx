@@ -137,9 +137,21 @@ const ProofPage = () => {
                 </div>
 
                 {!account ? (
-                     <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-6 text-center">
-                        <p className="text-red-200">Please connect your wallet using the button in the top-right corner to continue.</p>
-                    </div>
+                     <div>
+                        <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-6 text-center mb-6">
+                            <p className="text-red-200">Please connect your wallet using the button in the top-right corner to continue.</p>
+                        </div>
+                        {/* Show form for testing even without wallet */}
+                        <div className="bg-gray-500/20 border border-gray-500/30 rounded-lg p-6">
+                            <h3 className="text-lg font-semibold mb-4">📁 File Upload Form (Demo)</h3>
+                            <input 
+                                type="file" 
+                                className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded text-white file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700" 
+                                disabled
+                            />
+                            <p className="text-sm text-gray-400 mt-2">Connect wallet to enable upload</p>
+                        </div>
+                     </div>
                 ) : (
                     <div>
                         <form onSubmit={handleSubmit} className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-6 mb-6">

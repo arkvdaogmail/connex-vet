@@ -23,20 +23,32 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     useEffect(() => {
         // Check for VeWorld or Sync2 wallet
         const checkWallet = () => {
-            if (window.connex) {
-                setConnex(window.connex);
-                console.log('VeChain wallet detected');
-            } else {
-                console.log('No VeChain wallet found');
+            if (typeof window !== 'undefined') {
+                if (window.connex) {
+                    setConnex(window.connex);
+                    console.log('VeChain wallet detected');
+                } else {
+                    console.log('No VeChain wallet found');
+                }
             }
             setLoading(false);
         };
 
-        // Check immediately
-        checkWallet();
+        // Check immediately if window is available
+        if (typeof window !== 'undefined') {
+            checkWallet();
+        } else {
+            // If SSR, just set loading to false
+            setLoading(false);
+        }
 
         // Also check after a short delay in case wallet loads async
-        const timer = setTimeout(checkWallet, 1000);
+        const timer = setTimeout(() => {
+            if (typeof window !== 'undefined') {
+                checkWallet();
+            }
+        }, 2000);
+        
         return () => clearTimeout(timer);
     }, []);
 
