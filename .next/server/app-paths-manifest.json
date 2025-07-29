@@ -1,1 +1,4 @@
-{}
+{
+  "/proof/page": "app/proof/page.js",
+  "/verify/page": "app/verify/page.js"
+}
