@@ -136,64 +136,69 @@ const ProofPage = () => {
                     <p className="text-blue-200">Upload a file to record its hash on VeChain TestNet (Fee: 1 VET)</p>
                 </div>
 
-                {!account ? (
-                     <div>
-                        <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-6 text-center mb-6">
-                            <p className="text-red-200">Please connect your wallet using the button in the top-right corner to continue.</p>
-                        </div>
-                        {/* Show form for testing even without wallet */}
-                        <div className="bg-gray-500/20 border border-gray-500/30 rounded-lg p-6">
-                            <h3 className="text-lg font-semibold mb-4">📁 File Upload Form (Demo)</h3>
-                            <input 
-                                type="file" 
-                                className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded text-white file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700" 
-                                disabled
-                            />
-                            <p className="text-sm text-gray-400 mt-2">Connect wallet to enable upload</p>
-                        </div>
-                     </div>
-                ) : (
-                    <div>
-                        <form onSubmit={handleSubmit} className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-6 mb-6">
-                            <div className="mb-6">
-                                <label className="block text-sm font-medium mb-2">Select File</label>
-                                <input 
-                                    type="file" 
-                                    onChange={handleFileChange} 
-                                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded text-white file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700" 
-                                    required 
-                                    accept="*/*"
-                                />
-                                <p className="text-sm text-gray-400 mt-1">Maximum file size: 10MB</p>
-                            </div>
-                            
-                            {file && (
-                                <div className="mb-4 p-3 bg-blue-500/20 border border-blue-500/30 rounded">
-                                    <p className="text-sm text-blue-200">
-                                        <strong>File:</strong> {file.name}<br/>
-                                        <strong>Size:</strong> {(file.size / 1024).toFixed(1)} KB<br/>
-                                        <strong>Type:</strong> {file.type || 'Unknown'}
-                                    </p>
-                                </div>
-                            )}
-
-                            <div className="mb-4 p-3 bg-yellow-500/20 border border-yellow-500/30 rounded">
-                                <p className="text-sm text-yellow-200">
-                                    <strong>⚡ Transaction Fee:</strong> 1 VET + network gas fees<br/>
-                                    <strong>💾 Storage:</strong> Document hash will be permanently recorded on VeChain TestNet
-                                </p>
-                            </div>
-                            
-                            <button 
-                                type="submit" 
-                                disabled={processing || !file} 
-                                className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 disabled:cursor-not-allowed px-6 py-3 rounded-lg font-semibold transition-colors"
-                            >
-                                {processing ? 'Processing...' : 'Notarize on VeChain (1 VET)'}
-                            </button>
-                        </form>
+                {/* File Upload Form - Always Visible */}
+                <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-6 mb-6">
+                    <div className="mb-6">
+                        <label className="block text-sm font-medium mb-2">Select File</label>
+                        <input 
+                            type="file" 
+                            onChange={handleFileChange} 
+                            className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded text-white file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700" 
+                            required 
+                            accept="*/*"
+                        />
+                        <p className="text-sm text-gray-400 mt-1">Maximum file size: 10MB</p>
                     </div>
-                )}
+                    
+                    {file && (
+                        <div className="mb-4 p-3 bg-blue-500/20 border border-blue-500/30 rounded">
+                            <p className="text-sm text-blue-200">
+                                <strong>File:</strong> {file.name}<br/>
+                                <strong>Size:</strong> {(file.size / 1024).toFixed(1)} KB<br/>
+                                <strong>Type:</strong> {file.type || 'Unknown'}
+                            </p>
+                        </div>
+                    )}
+
+                    {/* Payment Section - Only show when file is selected */}
+                    {file && (
+                        <div>
+                            {!account ? (
+                                <div className="mb-4">
+                                    <div className="mb-4 p-3 bg-yellow-500/20 border border-yellow-500/30 rounded">
+                                        <p className="text-sm text-yellow-200">
+                                            <strong>⚡ Transaction Fee:</strong> 1 VET + network gas fees<br/>
+                                            <strong>💾 Storage:</strong> Document hash will be permanently recorded on VeChain TestNet
+                                        </p>
+                                    </div>
+                                    <button 
+                                        onClick={connectWallet}
+                                        className="w-full bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-semibold transition-colors"
+                                    >
+                                        Connect Wallet to Pay & Generate Hash
+                                    </button>
+                                </div>
+                            ) : (
+                                <form onSubmit={handleSubmit}>
+                                    <div className="mb-4 p-3 bg-yellow-500/20 border border-yellow-500/30 rounded">
+                                        <p className="text-sm text-yellow-200">
+                                            <strong>⚡ Transaction Fee:</strong> 1 VET + network gas fees<br/>
+                                            <strong>💾 Storage:</strong> Document hash will be permanently recorded on VeChain TestNet
+                                        </p>
+                                    </div>
+                                    
+                                    <button 
+                                        type="submit" 
+                                        disabled={processing || !file} 
+                                        className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 disabled:cursor-not-allowed px-6 py-3 rounded-lg font-semibold transition-colors"
+                                    >
+                                        {processing ? 'Processing...' : 'Pay 1 VET & Generate Hash'}
+                                    </button>
+                                </form>
+                            )}
+                        </div>
+                    )}
+                </div>
 
                 {status && (
                     <div className={`border rounded-lg p-4 mb-4 ${

@@ -14,7 +14,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="antialiased">
         <WalletProvider>
           <div className="min-h-screen bg-gradient-to-br from-blue-900 to-purple-900 text-white">
-            <Header />
             <main>{children}</main>
           </div>
         </WalletProvider>
