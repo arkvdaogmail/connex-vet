@@ -1,4 +1,3 @@
-// app/layout.tsx
 import type { Metadata } from "next";
 import { WalletProvider } from "@/components/WalletProvider";
 import Header from "@/components/Header";
@@ -27,4 +26,3 @@ export default function RootLayout({
     </html>
   );
 }
-
