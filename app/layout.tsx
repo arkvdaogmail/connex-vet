@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { WalletProvider } from "@/components/walletprovider";
-import Header from "@/components/header";
+import { DAppKitProvider } from '@vechain/dapp-kit-react';
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -12,11 +11,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className="antialiased">
-        <WalletProvider>
+        <DAppKitProvider
+          nodeUrl="https://testnet.veblocks.net/"
+          genesis="test"
+          usePersistence
+        >
           <div className="min-h-screen bg-gradient-to-br from-blue-900 to-purple-900 text-white">
             <main>{children}</main>
           </div>
-        </WalletProvider>
+        </DAppKitProvider>
       </body>
     </html>
   );
