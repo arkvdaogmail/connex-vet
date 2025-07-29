@@ -67,33 +67,38 @@ const ProofPage = () => {
         setStatus('Calculating document hash...');
 
         try {
-            // Calculate file hash
+            // Step 1: Calculate file hash
+            setStatus('📊 Calculating file hash...');
             const hash = await calculateFileHash(file);
             setDocHash(hash);
+            console.log('✅ Hash calculated:', hash);
 
-            setStatus('Preparing blockchain transaction... (Fee: 1 VET)');
-
-            // Create the transaction with payment
-            const signingService = connex.vendor.sign('tx');
-            signingService.comment(`Notarize document: ${file.name}`);
+            // Step 2: Prepare VeChain transaction
+            setStatus('💰 Preparing payment transaction (1 VET)...');
             
-            // Transaction with 1 VET fee and hash data
             const clause = {
-                to: '0x0000000000000000000000000000000000000000', // Null address for data storage
-                value: '1000000000000000000', // 1 VET in wei (1 VET = 10^18 wei)
+                to: '0x0000000000000000000000000000000000000000',
+                value: '1000000000000000000', // 1 VET
                 data: hash
             };
 
-            setStatus('Please check your wallet to approve the transaction...');
+            console.log('📝 Transaction clause:', clause);
+
+            // Step 3: Send transaction
+            setStatus('🔐 Please approve transaction in your wallet...');
             
+            const signingService = connex.vendor.sign('tx');
+            signingService.comment(`ARKV: ${file.name}`);
             const result = await signingService.request([clause]);
             
-            if (result) {
+            console.log('📤 Transaction result:', result);
+            
+            if (result && result.txid) {
                 setTxid(result.txid);
                 
-                // Store proof record for verification lookup
+                // Step 4: Store for lookup
                 const proofRecord = {
-                    shaId: hash.substring(2), // Remove 0x prefix
+                    shaId: hash.substring(2),
                     txHash: result.txid,
                     fileName: file.name,
                     fileSize: file.size,
@@ -103,14 +108,14 @@ const ProofPage = () => {
                     fee: '1 VET'
                 };
                 
-                // Store in localStorage for demo (in production, use proper database)
                 const existingRecords = JSON.parse(localStorage.getItem('arkv_proof_records') || '[]');
                 existingRecords.push(proofRecord);
                 localStorage.setItem('arkv_proof_records', JSON.stringify(existingRecords));
                 
-                setStatus('✅ Success! Your document hash has been recorded on VeChain TestNet with 1 VET fee.');
+                setStatus('✅ SUCCESS! Hash recorded on VeChain. Payment: 1 VET');
+                console.log('✅ Proof record saved:', proofRecord);
             } else {
-                setStatus('Error: Transaction was cancelled or failed.');
+                throw new Error('No transaction ID returned');
             }
 
         } catch (error: any) {

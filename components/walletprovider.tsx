@@ -53,30 +53,30 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     }, []);
 
     const connectWallet = async () => {
-        if (!window.connex) {
-            alert('VeChain wallet not found. Please install VeWorld or Sync2.');
-            return;
-        }
-        
-        setConnex(window.connex);
-        
         try {
+            if (!window.connex) {
+                alert('VeChain wallet not found. Please install VeWorld.');
+                return;
+            }
+            
+            setConnex(window.connex);
+            
             const message: Connex.Vendor.CertMessage = {
                 purpose: 'identification',
-                payload: { type: 'text', content: 'Connect to ARKV DAO - Proof of Creation Platform' }
+                payload: { type: 'text', content: 'Connect to ARKV DAO' }
             };
+            
             const cert = await window.connex.vendor.sign('cert').request(message);
+            
             if (cert && cert.annex && cert.annex.signer) {
                 setAccount(cert.annex.signer);
-                console.log('Wallet connected:', cert.annex.signer);
+                console.log('✅ Wallet connected:', cert.annex.signer);
+            } else {
+                throw new Error('No signer address returned');
             }
         } catch (error: any) {
-            console.error("Failed to connect wallet:", error);
-            if (error.message?.includes('user denied')) {
-                alert('Connection rejected by user');
-            } else {
-                alert('Failed to connect wallet. Please try again.');
-            }
+            console.error("❌ Wallet connection failed:", error);
+            alert('Failed to connect wallet: ' + error.message);
         }
     };
 
